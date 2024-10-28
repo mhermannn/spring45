@@ -9,13 +9,13 @@ import org.springframework.context.annotation.ImportResource;
 
 @SpringBootApplication
 @ImportResource("classpath:beans.xml")
-public class Spring4Application implements CommandLineRunner {
+public class Spring45Application implements CommandLineRunner {
 
     @Autowired
     private PersonService personService;
 
     public static void main(String[] args) {
-        SpringApplication.run(Spring4Application.class, args);
+        SpringApplication.run(Spring45Application.class, args);
     }
 
     @Override

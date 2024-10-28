@@ -8,16 +8,14 @@ import org.springframework.stereotype.Service;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
 public class PersonService {
     private final CompanyFix companyFix;
-
     private final List<Person> persons;
+    private int currentId = 1;
 
     @Autowired
     public PersonService(CompanyFix companyFix,
@@ -26,26 +24,44 @@ public class PersonService {
                          @Qualifier("secretary") Person secretary) {
         this.companyFix = companyFix;
         this.persons = new ArrayList<>();
+        president.setId(currentId++);
+        vicePresident.setId(currentId++);
+        secretary.setId(currentId++);
         persons.add(president);
         persons.add(vicePresident);
         persons.add(secretary);
     }
 
-    public void loadPersonsFromCSV(String filePath) {
-        String line;
-        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
-            br.readLine();
-            while ((line = br.readLine()) != null) {
-                String[] data = line.split(",");
-                String firstName = data[0];
-                String lastName = data[1];
-                String email = data[2];
-                String company = companyFix.extractCompanyFromEmail(email);
-                persons.add(new Person(firstName, lastName, email, company));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+    public List<Person> getAllPersons() {
+        return persons;
+    }
+
+    public Optional<Person> getPersonById(int id) {
+        return persons.stream().filter(p -> p.getId() == id).findFirst();
+    }
+
+    public Person addPerson(Person person) {
+        person.setId(currentId++);
+        persons.add(person);
+        return person;
+    }
+
+    public Person updatePerson(int id, Person updatedPerson) {
+        Optional<Person> existingPerson = getPersonById(id);
+        if (existingPerson.isPresent()) {
+            Person person = existingPerson.get();
+            person.setFirstName(updatedPerson.getFirstName());
+            person.setLastName(updatedPerson.getLastName());
+            person.setEmail(updatedPerson.getEmail());
+            person.setCompany(updatedPerson.getCompany());
+            return person;
+        } else {
+            throw new NoSuchElementException("Person not found with ID: " + id);
         }
+    }
+
+    public boolean deletePerson(int id) {
+        return persons.removeIf(person -> person.getId() == id);
     }
 
     public List<Person> filterByCompany(String companyName) {
@@ -66,5 +82,23 @@ public class PersonService {
 
     public List<Person> getPersons() {
         return persons;
+    }
+
+    public void loadPersonsFromCSV(String filePath) {
+        String line;
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+            br.readLine();
+            while ((line = br.readLine()) != null) {
+                String[] data = line.split(",");
+                String firstName = data[0];
+                String lastName = data[1];
+                String email = data[2];
+                String company = companyFix.extractCompanyFromEmail(email);
+                Person person = new Person(firstName, lastName, email, company);
+                addPerson(person);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }
