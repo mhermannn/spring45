@@ -21,26 +21,26 @@ public class PersonController {
 
     @GetMapping
     public List<Person> getAllPersons() {
-        return personService.getAllPersons();
+        return personService.getPersonModel().getAllPersons();
     }
 
     @GetMapping("/{id}")
     public Optional<Person> getPersonById(@PathVariable int id) {
-        return personService.getPersonById(id);
+        return personService.getPersonModel().getPersonById(id);
     }
 
     @PostMapping
     public Person addPerson(@RequestBody Person person) {
-        return personService.addPerson(person);
+        return personService.getPersonModel().addPerson(person);
     }
 
     @PutMapping("/{id}")
     public Person updatePerson(@PathVariable int id, @RequestBody Person updatedPerson) {
-        return personService.updatePerson(id, updatedPerson);
+        return personService.getPersonModel().updatePerson(id, updatedPerson);
     }
 
     @DeleteMapping("/{id}")
     public void deletePerson(@PathVariable int id) {
-        personService.deletePerson(id);
+        personService.getPersonModel().deletePerson(id);
     }
 }
